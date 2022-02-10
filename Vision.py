@@ -125,11 +125,15 @@ class Tester:
         self.lowest_distance_red = ntinst.getTable("ML").getEntry("distance_red")
         self.angle_blue = ntinst.getTable("ML").getEntry("angle_blue")
         self.angle_red = ntinst.getTable("ML").getEntry("angle_red")
+        self.area_blue = ntinst.getTable("ML").getEntry("area_blue")
+        self.area_red = ntinst.getTable("ML").getEntry("area_red")
         self.temp_entry = []
-        self.ldb = -1
-        self.ldr = -1
-        self.ab = 0
-        self.ar = 0
+        self.distanceb = -1
+        self.distancer = -1
+        self.angleb = 0
+        self.angler = 0
+        self.areab = -1
+        self.arear = -1
         
 
         print("Starting camera server")
@@ -155,8 +159,7 @@ class Tester:
         )
         self.camera_matrix = np.array([
             [self.size[0], 0, self.center[0]],
-            [0, 
-            [0], self.center[1]],
+            [0, 0, self.center[1]],
             [0, 0, 1]
         ], dtype='double')
         self.dist_matrix = np.zeros((4, 1))
@@ -196,15 +199,20 @@ class Tester:
                                                  y_scale)
             self.output.putFrame(frame)
             self.entry.setString(json.dumps(self.temp_entry))
-            self.lowest_distance_blue.setNumber(self.ldb)
-            self.lowest_distance_red.setNumber(self.ldr)
-            self.angle_blue.setNumber(self.ab)
-            self.angle_red.setNumber(self.ar)
+            self.lowest_distance_blue.setNumber(self.distanceb)
+            self.lowest_distance_red.setNumber(self.distancer)
+            self.angle_blue.setNumber(self.angleb)
+            self.angle_red.setNumber(self.angler)
+            self.area_blue.setNumber(self.areab)
+            self.area_red.setNumber(self.arear)
             self.temp_entry = []
-            self.ldb = -1
-            self.ldr = -1
-            self.ab = 0
-            self.ar = 0
+            self.temp_entry = []
+            self.distanceb = -1
+            self.distancer = -1
+            self.angleb = 0
+            self.angler = 0
+            self.areab = -1
+            self.arear = -1
             if self.frames % 100 == 0:
                 print("Completed", self.frames, "frames. FPS:", (1 / (time() - start)))
             if self.frames % 10 == 0:
@@ -273,13 +281,15 @@ class Tester:
         distance = math.sqrt(x**2 + y**2 + z**2)
         if(object_name != 'invalid'):
             if(object_name == 'red'):
-                if(distance<self.ldr or self.ldr == -1):
-                    self.ldr = distance
-                    self.ar = horizontal_angle
+                if(distance<self.distancer or self.distancer == -1):
+                    self.distancer = distance
+                    self.angler = horizontal_angle
+                    self.arear = (ymax - ymin) * (xmax - xmin)
             if(object_name == 'blue'):
-                if(distance<self.ldb or self.ldb == -1):
-                    self.ldb = distance
-                    self.ab = horizontal_angle
+                if(distance<self.distanceb or self.distanceb == -1):
+                    self.distanceb = distance
+                    self.angleb = horizontal_angle
+                    self.areab = (ymax - ymin) * (xmax - xmin)
             self.temp_entry.append({"label": object_name, "box": {"ymin": ymin, "xmin": xmin, "ymax": ymax, "xmax": xmax}, "confidence": score, "horizontal_angle": horizontal_angle, "vertical_angle": vertical_angle, "position": {"x": x, "y":y, "z":z}, "distance": distance})
 
         #cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (10, 255, 0), 4)
