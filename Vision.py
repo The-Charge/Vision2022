@@ -92,7 +92,6 @@ class BBox(collections.namedtuple('BBox', ['xmin', 'ymin', 'xmax', 'ymax'])):
 
 class Tester:
     def __init__(self, config_parser):
-
         print("Initializing TFLite runtime interpreter")
         try:
             model_path = "model.tflite"
@@ -125,15 +124,11 @@ class Tester:
         self.lowest_distance_red = ntinst.getTable("ML").getEntry("distance_red")
         self.angle_blue = ntinst.getTable("ML").getEntry("angle_blue")
         self.angle_red = ntinst.getTable("ML").getEntry("angle_red")
-        self.area_blue = ntinst.getTable("ML").getEntry("area_blue")
-        self.area_red = ntinst.getTable("ML").getEntry("area_red")
         self.temp_entry = []
         self.distanceb = -1
         self.distancer = -1
         self.angleb = 0
         self.angler = 0
-        self.areab = -1
-        self.arear = -1
         
 
         print("Starting camera server")
@@ -157,11 +152,7 @@ class Tester:
             self.size[0] // 2,
             self.size[1] // 2,
         )
-        self.camera_matrix = np.array([
-            [self.size[0], 0, self.center[0]],
-            [0, 0, self.center[1]],
-            [0, 0, 1]
-        ], dtype='double')
+        
         self.dist_matrix = np.zeros((4, 1))
 
         
@@ -203,16 +194,12 @@ class Tester:
             self.lowest_distance_red.setNumber(self.distancer)
             self.angle_blue.setNumber(self.angleb)
             self.angle_red.setNumber(self.angler)
-            self.area_blue.setNumber(self.areab)
-            self.area_red.setNumber(self.arear)
             self.temp_entry = []
             self.temp_entry = []
             self.distanceb = -1
             self.distancer = -1
             self.angleb = 0
             self.angler = 0
-            self.areab = -1
-            self.arear = -1
             if self.frames % 100 == 0:
                 print("Completed", self.frames, "frames. FPS:", (1 / (time() - start)))
             if self.frames % 10 == 0:
@@ -284,12 +271,10 @@ class Tester:
                 if(distance<self.distancer or self.distancer == -1):
                     self.distancer = distance
                     self.angler = horizontal_angle
-                    self.arear = (ymax - ymin) * (xmax - xmin)
             if(object_name == 'blue'):
                 if(distance<self.distanceb or self.distanceb == -1):
                     self.distanceb = distance
                     self.angleb = horizontal_angle
-                    self.areab = (ymax - ymin) * (xmax - xmin)
             self.temp_entry.append({"label": object_name, "box": {"ymin": ymin, "xmin": xmin, "ymax": ymax, "xmax": xmax}, "confidence": score, "horizontal_angle": horizontal_angle, "vertical_angle": vertical_angle, "position": {"x": x, "y":y, "z":z}, "distance": distance})
 
         #cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (10, 255, 0), 4)
